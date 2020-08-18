@@ -1,0 +1,62 @@
+physical position -> channel/index pair ->  driver channel -> physical strip[s]
+
+difficulties:
+ - translating physical position to channel/index pair
+
+idea: "region"
+    a region is a region of physical space occupied by some number of pixels
+    each pixel in a region is assigned a unique index
+    each region defines a coordinate system f: Z^N -> Z, where f': Z -> Z^N may
+        or may not be defined
+    standard coordinate system: ordered pair (a_0, a_1, ..., a_N)
+    bounds of coordinate system are constant?, defined as an N-1 dimensional matrix
+
+EXAMPLE:
+region(
+    channels = [
+        [0, [0,10],[15,17]],   ; 2 electrically separated, physically near segments
+        [2, [8,0]],           ; reversed
+        [3, [0,7]]
+    ]
+    dimension = 3
+    defines = [1,2]
+    definition =
+        [[3,4,5]
+         [2,3,4]
+         [1,2,3]]
+)
+
+Lüxe.driver() -> Driver
+Driver.open() -> Channel
+Driver.channel() -> Channel
+Channel.segments() -> AddressableLEDSegment
+Lüxe.region() -> Region
+
+driver = Lüxe.driver('/dev/ttyS0')
+driver.open(0, Lüxe.CHANNEL_WS2812, 20)
+driver.open(2, Lüxe.CHANNEL_WS2812, 10)
+driver.open(3, Lüxe.CHANNEL_WS2812, 7)
+
+region = Lüxe.region({
+    drivers: [driver],
+    channels: [
+        driver.channel(0).segments([[0,10], [17,15]]),
+        driver.channel(2).segments([[8,0]]),
+        driver.channel(3).segments([[0,7]])
+    ],
+    dimension: 3,
+    defines: [1,2],
+    definition: [[3,4,5],[2,3,4],[1,2,3]]
+})
+region_index = region.index([1,1,1]) ; 16
+address = region.address([1,1,1]) ; Address(_driver: driver, _channel: 2, _index: 4)
+
+; or region.write([1,1,1], Lüxe.rgb(0,0,255))
+region.write(region_index, Lüxe.rgb(0,0,255))
+region.retrieve_driver(region_index).latch() ; LED is shining bright blue
+
+Lüxe.write(address, Lüxe.rgb(0,255,0))
+Lüxe.retrieve_driver(address).latch() ; LED is shining bright green
+
+driver.channel(2).write(4, Lüxe.rgb(255,0,0))
+driver.latch() ; LED is shining bright red
