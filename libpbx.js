@@ -62,7 +62,7 @@ var _pbx = {
     _channel_size_for_protocol: function(channel_protocol) {
         switch(channel_protocol) {
             case CHANNEL_PROTOCOL_WS2812:
-                return 48
+                return 6
             default:
                 throw `unknown channel protocol ${channel_protocol}`
         }
@@ -141,3 +141,4 @@ exports.CHANNEL_PROTOCOL_WS2812 = CHANNEL_PROTOCOL_WS2812
 exports.CHANNEL_COMP_DISABLED = CHANNEL_COMP_DISABLED
 exports.CHANNEL_COMP_RGB = CHANNEL_COMP_RGB
 exports.CHANNEL_COMP_RGBW = CHANNEL_COMP_RGBW
+exports._libpbx = _libpbx
